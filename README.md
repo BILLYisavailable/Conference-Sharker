@@ -15,6 +15,8 @@ Conference-Sharker is a tiny Windows desktop widget that stays on top of your sc
 - [Features](#features)
 - [Color Coding](#color-coding)
 - [Super Quick Start](#super-quick-start)
+  - [Run (recommended)](#run-recommended)
+  - [Run from source (optional, for development)](#run-from-source-optional-for-development)
 - [Usage](#usage)
 - [Auto-start (Run on Windows startup)](#auto-start-run-on-windows-startup)
 - [Data File](#data-file)
@@ -50,30 +52,25 @@ Deadline sites are great, but you still have to *remember to check them*. Confer
 ### Requirements
 
 - Windows 10 / 11
-- Python 3.7+ (during installation, it helps to check **Add Python to PATH**)
 
-### Run (no installation step)
+### Run (recommended)
 
 Just double-click:
 
-- `Conference-Sharker.pyw`
+- `Conference-Sharker.exe`
 
-Or run from PowerShell (no console window):
+No Python needed. On first launch, it will create `deadlines.json` next to the `.exe` automatically.
+
+### Run from source (optional, for development)
+
+If you want to run the pure Python version:
+
+- Install Python 3.7+
+- Run `Conference-Sharker.pyw` (double-click), or:
 
 ```powershell
 pythonw .\Conference-Sharker.pyw
 ```
-
-On first launch, it will create `deadlines.json` next to the program automatically.
-
-### Optional: Build a standalone `.exe`
-
-```powershell
-pip install pyinstaller
-pyinstaller --noconsole --onefile --name Conference-Sharker .\Conference-Sharker.pyw
-```
-
-The executable will be at `dist\Conference-Sharker.exe` and can run anywhere (no Python needed). It will also keep `deadlines.json` next to the `.exe`.
 
 ## Usage
 
@@ -116,8 +113,8 @@ It adds/removes an entry under this Windows Registry key:
 
 All your data is stored in `deadlines.json`:
 
+- **Running the exe**: next to `Conference-Sharker.exe`
 - **Running from source**: next to `Conference-Sharker.pyw`
-- **Running from exe**: next to `Conference-Sharker.exe`
 
 It’s plain JSON — feel free to back it up or sync it. Example:
 
@@ -139,7 +136,8 @@ It’s plain JSON — feel free to back it up or sync it. Example:
 
 ```
 Conference-Sharker/
-├── Conference-Sharker.pyw   # Main app (double-click to run)
+├── Conference-Sharker.exe   # Recommended (double-click to run)
+├── Conference-Sharker.pyw   # Source version (optional)
 ├── README.md
 └── LICENSE
 ```
@@ -150,8 +148,9 @@ Conference-Sharker/
 
 ### Double-click does nothing / exits immediately
 
-- Make sure Python is installed and `python --version` works in a terminal
-- Try launching from PowerShell to see if there are errors:
+- If you’re running the **exe**, Windows Defender SmartScreen may block it the first time. Click **More info** → **Run anyway**.
+- If you’re running from **source** (`.pyw`), make sure Python is installed and `python --version` works in a terminal.
+- For source runs, you can launch from PowerShell to see if there are errors:
 
 ```powershell
 pythonw .\Conference-Sharker.pyw
