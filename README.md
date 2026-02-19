@@ -1,66 +1,79 @@
 # Conference-Sharker
 
-**Never miss a conference deadline again.**
+**Never miss a conference deadline again — always-on-top, second-precision, zero setup.**
 
-You know the feeling — juggling three papers, each targeting a different venue, and suddenly realizing an abstract deadline was *yesterday*. You've been there. We've all been there.
+Conference-Sharker is a tiny Windows desktop widget that stays on top of your screen and counts down every deadline that matters — **to the second**. No browser tabs. No config. No dependencies. Just run it and keep writing.
 
-Conference-Sharker is a tiny, always-on-top desktop widget that sits on your screen and counts down to every deadline that matters — **to the second**. No browser tabs. No bookmarks. No "let me check ccf-ddl real quick." Just a persistent, impossible-to-ignore reminder floating right next to your LaTeX editor.
-
-![Python](https://img.shields.io/badge/Python-3.7+-blue?logo=python&logoColor=white)
-![Platform](https://img.shields.io/badge/Platform-Windows-0078D4?logo=windows&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.7%2B-blue?logo=python&logoColor=white)
+![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11-0078D4?logo=windows&logoColor=white)
 ![Dependencies](https://img.shields.io/badge/Dependencies-Zero-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-## Why This Exists
+## Table of Contents
 
-> I got tired of opening [ccf-ddl.github.io](https://ccf-ddl.github.io/) every single day just to check if I still had time. So I built a tool that tells me — always, automatically, right on my desktop.
+- [Why](#why)
+- [Features](#features)
+- [Color Coding](#color-coding)
+- [Super Quick Start](#super-quick-start)
+- [Usage](#usage)
+- [Auto-start (Run on Windows startup)](#auto-start-run-on-windows-startup)
+- [Data File](#data-file)
+- [Project Structure](#project-structure)
+- [FAQ](#faq)
+- [License](#license)
 
-The CCF deadline website is great, but it requires you to *actively* check it. Conference-Sharker flips that around: it **pushes** the countdown to you, always visible, always ticking. You can't forget what's staring you in the face.
+## Why
+
+Deadline sites are great, but you still have to *remember to check them*. Conference-Sharker flips that: it **pushes the countdown onto your desktop**, always visible, always ticking.
 
 ## Features
 
-- **Always-on-top floating widget** — translucent, rounded-corner dark theme (Catppuccin Mocha)
-- **Second-precision countdown** — color-coded by urgency so you feel the pressure
-- **Built-in calendar picker** — no more typing dates manually; just click
-- **Startup with Windows** — one click to enable auto-start via the Registry
-- **Zero dependencies** — pure Python standard library, ~20 MB memory footprint
-- **Single file** — the entire app is one `.pyw` file, easy to hack and extend
+- **Always-on-top floating widget**: translucent, rounded corners, dark theme (Catppuccin Mocha)
+- **Second-precision countdown**: automatically color-coded by urgency
+- **Built-in calendar picker**: click to pick dates, no manual typing
+- **Auto-start on login**: enable/disable anytime (one right-click)
+- **Zero dependencies**: pure Python standard library (`tkinter`, `json`, `datetime`, ...)
+- **Single file**: the entire app is one `.pyw` file — easy to hack and extend
 
-## Countdown Color Coding
+## Color Coding
 
 | Time Remaining | Color | Vibe |
 |---|---|---|
 | > 30 days | Green | Plenty of time (but start writing) |
-| 7 – 30 days | Yellow | Getting real |
-| 1 – 7 days | Orange | Crunch time |
+| 7–30 days | Yellow | Getting real |
+| 1–7 days | Orange | Crunch time |
 | < 24 hours | Red | All-nighter territory |
 | Past due | Gray | F |
 
-## Quick Start
+## Super Quick Start
 
-### Prerequisites
+### Requirements
 
 - Windows 10 / 11
-- Python 3.7+ (make sure to check **"Add Python to PATH"** during installation)
+- Python 3.7+ (during installation, it helps to check **Add Python to PATH**)
 
-### Run
+### Run (no installation step)
 
-Simply double-click `main.pyw`. That's it. No console window, no setup, no config files.
+Just double-click:
 
-Or from the terminal:
+- `Conference-Sharker.pyw`
+
+Or run from PowerShell (no console window):
 
 ```powershell
-pythonw main.pyw
+pythonw .\Conference-Sharker.pyw
 ```
 
-### Build a Standalone .exe (Optional)
+On first launch, it will create `deadlines.json` next to the program automatically.
+
+### Optional: Build a standalone `.exe`
 
 ```powershell
 pip install pyinstaller
-pyinstaller --noconsole --onefile --name Conference-Sharker main.pyw
+pyinstaller --noconsole --onefile --name Conference-Sharker .\Conference-Sharker.pyw
 ```
 
-The resulting `dist/Conference-Sharker.exe` runs anywhere — no Python needed.
+The executable will be at `dist\Conference-Sharker.exe` and can run anywhere (no Python needed). It will also keep `deadlines.json` next to the `.exe`.
 
 ## Usage
 
@@ -69,24 +82,44 @@ The resulting `dist/Conference-Sharker.exe` runs anywhere — no Python needed.
 | Action | How |
 |---|---|
 | Move the widget | Drag the title bar |
-| Add a conference | Click **"+ Add Conference"** at the bottom |
-| Open manager panel | Click **"\u2261 Manage"** or the `\u2261` button in the title bar |
-| Collapse / expand | Click the `\u2500` button |
-| Edit / delete an entry | Right-click on any countdown card |
-| Enable auto-start | Right-click anywhere → **"Toggle Auto-start"** |
-| Quit | Click `\u00d7` or right-click → **"Quit"** |
+| Add a conference | Click **+ Add Conference** |
+| Open manager panel | Click **≡ Manage** or the `≡` button |
+| Collapse / expand | Click the `─` button |
+| Edit / delete an entry | Right-click on a countdown card |
+| Quit | Click `×` or right-click → **Quit** |
 
-### Adding a Conference
+### Add a deadline
 
-1. Click **"+ Add Conference"**
-2. Enter your paper title and conference name
-3. Pick the deadline date from the calendar
-4. Adjust the time (defaults to 20:00, because most deadlines are "anywhere on Earth")
-5. Hit **Save**
+1. Click **+ Add Conference**
+2. Enter **Paper Title** and **Conference**
+3. Pick a date in the calendar
+4. Set the time (defaults to 20:00:00)
+5. Click **Save**
 
-## Data Storage
+## Auto-start (Run on Windows startup)
 
-All data lives in `deadlines.json` next to the executable. Back it up, sync it, version-control it — it's just JSON:
+Conference-Sharker supports starting automatically when you log in to Windows.
+
+### Toggle auto-start in the app (recommended)
+
+1. **Right-click anywhere** on the widget (including blank areas)
+2. Click **Toggle Auto-start**
+3. You will see a popup confirming **enabled** / **disabled**
+
+### How it works (for troubleshooting)
+
+It adds/removes an entry under this Windows Registry key:
+
+- `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`
+
+## Data File
+
+All your data is stored in `deadlines.json`:
+
+- **Running from source**: next to `Conference-Sharker.pyw`
+- **Running from exe**: next to `Conference-Sharker.exe`
+
+It’s plain JSON — feel free to back it up or sync it. Example:
 
 ```json
 {
@@ -105,19 +138,28 @@ All data lives in `deadlines.json` next to the executable. Back it up, sync it, 
 ## Project Structure
 
 ```
-conference-sharker/
-├── main.pyw          # The entire app (double-click to run)
-├── deadlines.json    # Your data (auto-generated)
-└── README.md
+Conference-Sharker/
+├── Conference-Sharker.pyw   # Main app (double-click to run)
+├── README.md
+└── LICENSE
 ```
 
-## Theme
+> `deadlines.json` is auto-generated on first run, so it typically isn’t committed.
 
-UI powered by the [Catppuccin Mocha](https://github.com/catppuccin/catppuccin) color palette — easy on the eyes during those late-night paper-writing sessions.
+## FAQ
 
-## Contributing
+### Double-click does nothing / exits immediately
 
-Found a bug? Have an idea? PRs and issues welcome.
+- Make sure Python is installed and `python --version` works in a terminal
+- Try launching from PowerShell to see if there are errors:
+
+```powershell
+pythonw .\Conference-Sharker.pyw
+```
+
+### Where is my data? Can I rename the file?
+
+- The data filename is currently fixed in code as `deadlines.json`, always stored next to the program (`.pyw` or `.exe`).
 
 ## License
 
