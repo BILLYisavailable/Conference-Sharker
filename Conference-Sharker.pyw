@@ -74,6 +74,9 @@ def _round_region(win):
         w, h = win.winfo_width(), win.winfo_height()
         if w < 10 or h < 10:
             return
+        if h < CORNER_R * 3:
+            ctypes.windll.user32.SetWindowRgn(hwnd, 0, True)
+            return
         rgn = ctypes.windll.gdi32.CreateRoundRectRgn(
             0, 0, w + 1, h + 1, CORNER_R, CORNER_R,
         )
@@ -227,6 +230,7 @@ class App:
         x, y = max(0, min(int(x), sw - 120)), max(0, min(int(y), sh - 60))
         r.geometry(f"+{x}+{y}")
         r.bind("<Configure>", self._on_cfg)
+        r.bind("<Unmap>", self._on_unmap)
 
     def _on_cfg(self, event):
         if event.widget is not self.root:
@@ -253,6 +257,7 @@ class App:
             w.bind("<Button-1>", self._press)
             w.bind("<B1-Motion>", self._drag)
             w.bind("<ButtonRelease-1>", self._release)
+            w.bind("<Double-Button-1>", lambda _: self._collapse())
 
         bkw = dict(
             bg=TITLE_BG, fg=OVERLAY, bd=0, font=(MONO, 12),
@@ -260,7 +265,8 @@ class App:
             cursor="hand2", width=3,
         )
         tk.Button(tb, text="\u00d7", command=self._quit, **bkw).pack(side="right")
-        tk.Button(tb, text="\u2500", command=self._collapse, **bkw).pack(side="right")
+        self._btn_collapse = tk.Button(tb, text="\u2500", command=self._collapse, **bkw)
+        self._btn_collapse.pack(side="right")
         tk.Button(tb, text="\u2261", command=self._open_mgr, **bkw).pack(side="right")
 
         self.body = tk.Frame(self.root, bg=BG)
@@ -350,6 +356,7 @@ class App:
                 w.bind("<Enter>", lambda _, ws=ws: [x.config(bg=SURFACE) for x in ws])
                 w.bind("<Leave>", lambda _, ws=ws: [x.config(bg=CARD) for x in ws])
                 w.bind("<Button-3>", lambda e, d=did: self._card_ctx(e, d))
+                w.bind("<Double-Button-1>", lambda _, d=did: self._edit(d))
 
             self.cards.append({"f": f, "cd": cd, "dl": dl["deadline"]})
 
@@ -413,10 +420,25 @@ class App:
         if self._collapsed:
             self.body.pack(fill="both", expand=True, padx=6, pady=(2, 0))
             self._foot.pack(fill="x", padx=6, pady=(4, 6))
+            self._btn_collapse.config(text="\u2500")
         else:
             self.body.pack_forget()
             self._foot.pack_forget()
+            self._btn_collapse.config(text="\u25a1")
         self._collapsed = not self._collapsed
+        self.root.update_idletasks()
+        _round_region(self.root)
+
+    def _on_unmap(self, event):
+        if event.widget is self.root:
+            self.root.after(200, self._ensure_visible)
+
+    def _ensure_visible(self):
+        try:
+            self.root.deiconify()
+            self.root.attributes("-topmost", True)
+        except tk.TclError:
+            pass
 
     def _add(self):
         DlgDeadline(self.root, cb=self._on_saved)
@@ -729,19 +751,24 @@ class ManagerWin:
 
             info = tk.Frame(row, bg=CARD)
             info.pack(side="left", fill="x", expand=True)
-            tk.Label(
+            lbl_p = tk.Label(
                 info, text=dl["paper"], bg=CARD, fg=TEXT,
                 font=(FONT, 10, "bold"), anchor="w",
-            ).pack(fill="x")
-            tk.Label(
+            )
+            lbl_p.pack(fill="x")
+            lbl_s = tk.Label(
                 info,
                 text=f"{dl['conference']}  \u00b7  {dl['deadline']}",
                 bg=CARD, fg=SUB, font=(FONT, 9), anchor="w",
-            ).pack(fill="x")
+            )
+            lbl_s.pack(fill="x")
+
+            did = dl["id"]
+            for widget in (row, info, lbl_p, lbl_s):
+                widget.bind("<Double-Button-1>", lambda _, d=did: self._edit(d))
 
             btns = tk.Frame(row, bg=CARD)
             btns.pack(side="right", padx=(8, 0))
-            did = dl["id"]
             tk.Button(
                 btns, text="Edit", command=lambda d=did: self._edit(d),
                 bg=SURFACE, fg=TEXT, font=(FONT, 9),
